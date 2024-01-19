@@ -74,7 +74,7 @@ public class MatrixFinalCOPY extends LinearOpMode {
     public static double fastSpeed = 1, slowSpeed = 0.5;
     public static double THROTTLE = 1, HEADING = 1, TURN = 1;
     public String hangerflag = "hangerDOWN";
-    private BHI260IMU imu;
+//    private BHI260IMU imu;
     public enum IntakeState {
         INTAKE_GRIP_COMMAND,
         INTAKE_START,
