@@ -129,6 +129,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(0.3, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
 
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
@@ -136,6 +137,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
+                .resetConstraints()
 
                 .splineToConstantHeading(new Vector2d(-34,12),0)
 
@@ -151,6 +153,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence AutoTrajectoryRightYellow = drive.trajectorySequenceBuilder(CenterPathPlacing.end())
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToConstantHeading(new Vector2d(50.5, 40))
 
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(0.54, 0.175);})
@@ -217,6 +220,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(0.3, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
 
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
@@ -224,6 +228,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
+                .resetConstraints()
 
                 .splineToConstantHeading(new Vector2d(-34,12),0)
 
@@ -238,7 +243,8 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(36,12),0) //28
                 .build();
 
-        TrajectorySequence AutoTrajectoryCenterYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end()) //53.5+1,32
+        TrajectorySequence AutoTrajectoryCenterYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end())
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToConstantHeading(new Vector2d(50.5, 32))
 
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(0.54, 0.175);})
@@ -296,6 +302,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(0.3, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
 
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
@@ -303,6 +310,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
+                .resetConstraints()
 
                 .splineToConstantHeading(new Vector2d(-34,12),0)
 
@@ -317,7 +325,8 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(36,12),0) //28
                 .build();
 
-        TrajectorySequence AutoTrajectoryLeftYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Left.end()) //53.5+1, 30
+        TrajectorySequence AutoTrajectoryLeftYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Left.end())
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToConstantHeading(new Vector2d(50.5, 40))
 
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(0.54, 0.175);})

@@ -129,6 +129,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
@@ -136,6 +137,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
+                .resetConstraints()
 
                 .splineToConstantHeading(new Vector2d(-34,-12),0)
 
@@ -162,6 +164,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence AutoTrajectoryLeftYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Left.end())
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToConstantHeading(new Vector2d(47, -40))
 
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(armServoOneOut, 0.175);})
@@ -232,6 +235,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
 
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
@@ -239,6 +243,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
+                .resetConstraints()
 
                 .splineToConstantHeading(new Vector2d(-34,-12),0)
 
@@ -265,6 +270,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence AutoTrajectoryCenterYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end())
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToConstantHeading(new Vector2d(47, -40))
 
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(armServoOneOut, 0.175);})
@@ -324,6 +330,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(0.8, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
@@ -331,6 +338,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
+                .resetConstraints()
 
                 .splineToConstantHeading(new Vector2d(-34,-12),0)
 
@@ -346,6 +354,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence AutoTrajectoryRightYellow = drive.trajectorySequenceBuilder(CenterPathPlacing.end())
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .splineToConstantHeading(new Vector2d(47, -30), 0)
 
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.175);})
@@ -355,7 +364,8 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{arm.setArmPos(0.5, 0.68);}) //0.51
                 .waitSeconds(0.1)
-                .strafeLeft(10)
+
+                .lineToConstantHeading(YellowRight)
 
                 .UNSTABLE_addTemporalMarkerOffset(0.1, ()->{arm.setArmPos(0.54,0.68);})
                 .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{arm.setArmPos(0.53,0.68);})
@@ -432,7 +442,7 @@ public class RedSafeFarAuto extends LinearOpMode {
             //RIGHT TRAJECTORY
             switch (currentState){
                 case Start:
-                    if (gamepad1.b || propPosition == "right"){ //
+                    if (gamepad1.b || propPosition == "RIGHT"){ //
                         if (!drive.isBusy()) {
                             currentState = AutoTrajectoryRight.AutoTrajectoryRightPurple;
                             drive.followTrajectorySequenceAsync(AutoTrajectoryRightPurple);
@@ -480,7 +490,7 @@ public class RedSafeFarAuto extends LinearOpMode {
             //CENTER TRAJECTORY
             switch (currentState2){
                 case Start:
-                    if (gamepad1.y || propPosition == "center"){ //
+                    if (gamepad1.y || propPosition == "CENTER"){ //
                         if (!drive.isBusy()) {
                             currentState2 = AutoTrajectoryCenter.AutoTrajectoryCenterPurple;
                             drive.followTrajectorySequenceAsync(AutoTrajectoryCenterPurple);
@@ -518,7 +528,7 @@ public class RedSafeFarAuto extends LinearOpMode {
             //LEFT TRAJECTORY
             switch (currentState3){
                 case Start:
-                    if (gamepad1.x || propPosition == "left"){ //
+                    if (gamepad1.x || propPosition == "LEFT"){ //
                         if (!drive.isBusy()) {
                             currentState3 = AutoTrajectoryLeft.AutoTrajectoryLeftPurple;
                             drive.followTrajectorySequenceAsync(AutoTrajectoryLeftPurple);

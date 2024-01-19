@@ -146,8 +146,8 @@ public class MatrixFinalCOPY extends LinearOpMode {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
         imu = hardwareMap.get(BNO055IMU.class, "imu1");
         imu.initialize(parameters);
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -211,6 +211,7 @@ public class MatrixFinalCOPY extends LinearOpMode {
             adjustedYaw = angles.firstAngle-initYaw;
             // toggle field/normal
             double zerodYaw = -initYaw+angles.firstAngle;
+
             double x = gamepad1.left_stick_x;
             double y = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
