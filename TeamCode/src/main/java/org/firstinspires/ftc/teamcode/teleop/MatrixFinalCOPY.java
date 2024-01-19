@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -19,7 +20,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.constants.TeleOpConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.advanced.PoseStorage;
@@ -47,6 +51,12 @@ public class MatrixFinalCOPY extends LinearOpMode {
     Drone drone = null;
     TeleOpConstants.intakeConstants intakeConstants;
     public static DcMotorEx leftFront, leftRear, rightFront, rightRear;
+
+    BNO055IMU imu;
+    Orientation angles = new Orientation();
+    double initYaw;
+    double adjustedYaw;
+
     ElapsedTime inputTimer, outputTimer, angle_timer, dropTimer;
     public static double
             armServoOnePos = 0.92, armServoOneUP = 0.8, wristServoPos = 0.175, wristServoOutPos, deliveryServoPos, armSliderServoPos;
@@ -127,11 +137,22 @@ public class MatrixFinalCOPY extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         // Retrieve the IMU from the hardware map
-        IMU imu = hardwareMap.get(BHI260IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+//        IMU imu = hardwareMap.get(BHI260IMU.class, "imu");
+//        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+//                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+//                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+//        imu.initialize(parameters);
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+        imu = hardwareMap.get(BNO055IMU.class, "imu1");
         imu.initialize(parameters);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        initYaw = angles.firstAngle;
+
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
@@ -186,65 +207,99 @@ public class MatrixFinalCOPY extends LinearOpMode {
             double armOnePosition = armOneAnalogInput.getVoltage() / 3.3 * 360;
             double armTwoPosition = armTwoAnalogInput.getVoltage() / 3.3 * 360;
 
-            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
+            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            adjustedYaw = angles.firstAngle-initYaw;
+            // toggle field/normal
+            double zerodYaw = -initYaw+angles.firstAngle;
             double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
+            double y = -gamepad1.left_stick_y;
+            double turn = gamepad1.right_stick_x;
 
-            if (currentGamepad1.start && !previousGamepad1.start) {
-                imu.resetYaw();
+            double theta = Math.atan2(y, x) * 180/Math.PI; // aka angle
+            double realTheta;
+            realTheta = (360 - zerodYaw) + theta;
+            double power = Math.hypot(x, y);
+            double sin = Math.sin((realTheta * (Math.PI / 180)) - (Math.PI / 4));
+            double cos = Math.cos((realTheta * (Math.PI / 180)) - (Math.PI / 4));
+            double maxSinCos = Math.max(Math.abs(sin), Math.abs(cos));
+
+            double leftFrontPow = (power * cos / maxSinCos + turn);
+            double rightFrontPow = (power * sin / maxSinCos - turn);
+            double leftBackPow = (power * sin / maxSinCos + turn);
+            double rightBackPow = (power * cos / maxSinCos - turn);
+
+
+            if ((power + Math.abs(turn)) > 1) {
+                leftFrontPow /= power + turn;
+                rightFrontPow /= power - turn;
+                leftBackPow /= power + turn;
+                rightBackPow /= power - turn;
             }
 
-            // Main teleop loop goes here
-
-            //drivetrain ---------------------------------------------------------------------------
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
-
-            rotX = rotX * 1.1;
-
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-            double frontLeftPower = (rotY + rotX + rx) / denominator;
-            double backLeftPower = (rotY - rotX + rx) / denominator;
-            double frontRightPower = (rotY - rotX - rx) / denominator;
-            double backRightPower = (rotY + rotX - rx) / denominator;
-
-            leftFront.setPower(fastSpeed * frontLeftPower);
-            leftRear.setPower(fastSpeed * backLeftPower);
-            rightFront.setPower(fastSpeed * frontRightPower);
-            rightRear.setPower(fastSpeed * backRightPower);
-
-            if (currentGamepad1.left_trigger > 0.75){
-                leftFront.setPower(slowSpeed * frontLeftPower);
-                leftRear.setPower(slowSpeed * backLeftPower);
-                rightFront.setPower(slowSpeed * frontRightPower);
-                rightRear.setPower(slowSpeed * backRightPower);
-            }
-
-            drive.update();
-
-            // Retrieve your pose
-            Pose2d myPose = drive.getPoseEstimate();
-
-            double turnStack = angleWrap(Math.toRadians(90) - botHeading);
-            double turnBackDrop = angleWrap(Math.toRadians(270) - botHeading);
-
-            double turnBotFront = angleWrap(Math.toRadians(0) - botHeading);
-            double turnBotBack = angleWrap(Math.toRadians(180) - botHeading);
-
-            //TODO: SPEED THIS UP, PID TUNING
-            if (currentGamepad1.dpad_left && !previousGamepad1.dpad_left ) {
-                drive.turn(turnStack);
-            }
-            if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
-                drive.turn(turnBackDrop);
-            }
-            if (currentGamepad1.dpad_down && currentGamepad1.dpad_down ) {
-                drive.turn(turnBotBack);
-            }
-            if (currentGamepad1.dpad_up && currentGamepad1.dpad_up){
-                drive.turn(turnBotFront);
-            }
+            leftFront.setPower(leftFrontPow);
+            rightFront.setPower(rightFrontPow);
+            leftRear.setPower(leftBackPow);
+            rightRear.setPower(rightBackPow);
+            //--------------------------------------------------------------------------------------
+//            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
+//            double x = gamepad1.left_stick_x;
+//            double rx = gamepad1.right_stick_x;
+//
+//            if (currentGamepad1.start && !previousGamepad1.start) {
+//                imu.resetYaw();
+//            }
+//
+//            // Main teleop loop goes here
+//
+//            //drivetrain ---------------------------------------------------------------------------
+//            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+//            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
+//            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+//
+//            rotX = rotX * 1.1;
+//
+//            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+//            double frontLeftPower = (rotY + rotX + rx) / denominator;
+//            double backLeftPower = (rotY - rotX + rx) / denominator;
+//            double frontRightPower = (rotY - rotX - rx) / denominator;
+//            double backRightPower = (rotY + rotX - rx) / denominator;
+//
+//            leftFront.setPower(fastSpeed * frontLeftPower);
+//            leftRear.setPower(fastSpeed * backLeftPower);
+//            rightFront.setPower(fastSpeed * frontRightPower);
+//            rightRear.setPower(fastSpeed * backRightPower);
+//
+//            if (currentGamepad1.left_trigger > 0.75){
+//                leftFront.setPower(slowSpeed * frontLeftPower);
+//                leftRear.setPower(slowSpeed * backLeftPower);
+//                rightFront.setPower(slowSpeed * frontRightPower);
+//                rightRear.setPower(slowSpeed * backRightPower);
+//            }
+//
+//            drive.update();
+//
+//            // Retrieve your pose
+//            Pose2d myPose = drive.getPoseEstimate();
+//
+//            double turnStack = angleWrap(Math.toRadians(90) - botHeading);
+//            double turnBackDrop = angleWrap(Math.toRadians(270) - botHeading);
+//
+//            double turnBotFront = angleWrap(Math.toRadians(0) - botHeading);
+//            double turnBotBack = angleWrap(Math.toRadians(180) - botHeading);
+//
+//            //TODO: SPEED THIS UP, PID TUNING
+//            if (currentGamepad1.dpad_left && !previousGamepad1.dpad_left ) {
+//                drive.turn(turnStack);
+//            }
+//            if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
+//                drive.turn(turnBackDrop);
+//            }
+//            if (currentGamepad1.dpad_down && currentGamepad1.dpad_down ) {
+//                drive.turn(turnBotBack);
+//            }
+//            if (currentGamepad1.dpad_up && currentGamepad1.dpad_up){
+//                drive.turn(turnBotFront);
+//            }
             //--------------------------------------------------------------------------------------
 //            Pose2d poseEstimate = drive.getPoseEstimate();
 //            Vector2d input = new Vector2d(Math.pow(Range.clip(gamepad1.left_stick_y, -1, 1), 3),
