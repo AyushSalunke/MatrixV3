@@ -152,6 +152,11 @@ public class BlueSafeNearAuto extends LinearOpMode {
 
                 //backdrop
                 .lineToConstantHeading(new Vector2d(35 , 28))
+
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(()->{Intake.CrankPosition(0.65);})
+                .waitSeconds(0.2)
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})

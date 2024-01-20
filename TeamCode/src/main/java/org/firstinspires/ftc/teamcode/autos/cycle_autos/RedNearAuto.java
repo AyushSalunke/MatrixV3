@@ -18,26 +18,22 @@ import org.firstinspires.ftc.teamcode.subsystems.Hanger;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Slider;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.vision.Globals;
+import org.firstinspires.ftc.teamcode.vision.Location;
+import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
 
 @Autonomous(name = "REDNearAuto_2Cycle", group = "2Cycle_Autos")
-@Disabled
+//@Disabled
 public class RedNearAuto extends LinearOpMode {
     SampleMecanumDrive drive = null;
     Slider slider = null;
     ArmV2 arm = null;
     Hanger hanger = null;
     Intake intake = null;
-    private static final boolean USE_WEBCAM = true;
-    private static final String TFOD_MODEL_ASSET = "blackbox.tflite";
-    private static final String[] LABELS = {
-            "beacon"
-    };
-    private TfodProcessor tfod;
-    private VisionPortal visionPortal;
     public static int val=0;
     double x;
     double y;
@@ -50,7 +46,7 @@ public class RedNearAuto extends LinearOpMode {
 
     public static double stackDiff = 0;
 
-    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-53.5 , -10, -Math.PI); //-51,-12
+    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-51 , -10, -Math.PI); //-51,-12
     public static Vector2d PurpleLeft = new Vector2d(16 , -29), YellowLeft = new Vector2d(50,-26), StackLeft; //25
 
     public static Pose2d PurpleCenterPos, YellowCenterPos, StackCenterPos;
@@ -60,6 +56,12 @@ public class RedNearAuto extends LinearOpMode {
     public static Vector2d PurpleRight = new Vector2d(35 , -30), YellowRight = new Vector2d(52,-41), StackRight;
 
     public static double wristPlay1 = 0.00, wristPlay2 = 0.00;
+
+    public static double armServoOnePos = 0.92, armServoOneUP = 0.8, armServoOneOut = 0.47;
+    public static double yellowDiff = 3.5;
+    private PropPipeline propPipeline;
+    private VisionPortal portal;
+    private Location randomization;
 
     enum AutoTrajectoryLeft {
         Start,
@@ -111,48 +113,57 @@ public class RedNearAuto extends LinearOpMode {
         hanger = new Hanger(hardwareMap, telemetry);
         intake = new Intake(hardwareMap, telemetry);
 
+        Globals.IS_AUTO = true;
+        Globals.ALLIANCE = Location.RED;
+        Globals.SIDE = Location.CLOSE;
+
         Pose2d startPose=new Pose2d(14, -62, -Math.PI);
         drive.setPoseEstimate(startPose);
-        initTfod();
 
 
         //TODO Left Trajectories
         TrajectorySequence AutoTrajectoryLeft_Purple_Yellow = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
-                .lineToConstantHeading(PurpleLeft)
-
-                .UNSTABLE_addTemporalMarkerOffset(-0.5,()->{arm.setArmPos(0.4, 0.175);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(()->{Intake.IntakePixel(1);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(()->{Intake.CrankPosition(0.69);arm.setArmPos(0.54, 0.66);})
-
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
-                .splineToConstantHeading(YellowLeft, 0)
-
-                .UNSTABLE_addTemporalMarkerOffset(-0.3,()->{ArmV2.DropPixel(1);})
-                .UNSTABLE_addTemporalMarkerOffset(0.0, ()->{Intake.intakeArmServo.setPosition(0.636);Intake.intakeWristServo.setPosition(0.262 + wristPlay1);})
+                //backdrop
+                .lineToConstantHeading(new Vector2d(16 , -29))
+                .addTemporalMarker(()->{Intake.CrankPosition(0.35);arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> {arm.setArmPos(0.3, 0.175);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(() -> {arm.setArmPos(0.15, 0.175);})
-                .setReversed(false)
+                .addTemporalMarker(()->{Intake.CrankPosition(0.48);})
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{Intake.IntakePixel(1);})
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+//                .splineToConstantHeading(new Vector2d(50.5 - yellowDiff,-27.5), 0)
+                .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-29))
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
+                .waitSeconds(0.4)
+                .addTemporalMarker(()->{ArmV2.DropPixel(1);})
+                .waitSeconds(0.4)
                 .resetConstraints()
+                .addTemporalMarker(() -> {arm.setArmPos(0.5, 0.68);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(() -> {arm.setArmPos(armServoOneUP, 0.16);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
+                .waitSeconds(0.1)
                 .build();
 
         TrajectorySequence CenterPathPicking = drive.trajectorySequenceBuilder(AutoTrajectoryLeft_Purple_Yellow.end())
                 .splineToConstantHeading(new Vector2d(18,-7), -Math.PI)
-                .splineToConstantHeading(new Vector2d(-33,-10), -Math.PI)
+                .splineToConstantHeading(new Vector2d(-34,-10), -Math.PI)
 
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(35))
-                .addTemporalMarker(()->{arm.setArmPos(0.3, 0.16);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.38);})
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.650);Intake.intakeWristServo.setPosition(0.25 + wristPlay1);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
 
                 .lineToSplineHeading(StackLeftPos)
 
                 .waitSeconds(0.1)
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.650);Intake.intakeWristServo.setPosition(0.23 + wristPlay1);})
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{intake.setArm(0.65, 0.4);})
@@ -163,17 +174,17 @@ public class RedNearAuto extends LinearOpMode {
 
 
         TrajectorySequence CenterPathPlacing = drive.trajectorySequenceBuilder(CenterPathPicking.end())
-                .splineToConstantHeading(new Vector2d(-34,-12),0)
+                .splineToConstantHeading(new Vector2d(-34,-10),0)
 
                 .UNSTABLE_addTemporalMarkerOffset(0.0, ()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.66);Intake.IntakePixel(0.77);})
                 .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{Intake.intakeArmServo.setPosition(0.75);Intake.IntakePixel(0.77);})
                 .UNSTABLE_addTemporalMarkerOffset(0.7, ()->{Intake.intakeArmServo.setPosition(1);Intake.intakeWristServo.setPosition(0.45);Intake.IntakePixel(0.77);})
 
-                .splineToConstantHeading(new Vector2d(36,-12),0) //28
+                .splineToConstantHeading(new Vector2d(36,-10),0) //28
 
-                .addTemporalMarker(()->{arm.setArmPos(0.15, 0.165);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOnePos, 0.165);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{Intake.IntakePixel(1);ArmV2.DropPixel(0.5);arm.setArmPos(0.1, 0.155);slider.extendTo(-10, 1);})
+                .addTemporalMarker(()->{Intake.IntakePixel(1);ArmV2.DropPixel(0.5);arm.setArmPos(0.95, 0.155);slider.extendTo(-10, 1);})
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{slider.extendTo(0, 1);})
                 .build();
@@ -183,28 +194,22 @@ public class RedNearAuto extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(50, -36), 0)
                 .lineToConstantHeading(new Vector2d(50.5, -36))
 
-                .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(0.53, 0.175);})
-                .UNSTABLE_addTemporalMarkerOffset(-0.4,()->{arm.setArmPos(0.53, 0.68);})
+                .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(armServoOneOut, 0.175);})
+                .UNSTABLE_addTemporalMarkerOffset(-0.4,()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .UNSTABLE_addTemporalMarkerOffset(-0.4, ()->{ArmV2.DropPixel(0.84);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{arm.setArmPos(0.49, 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(0.5, 0.68);})
                 .addTemporalMarker(()->{Intake.intakeWristServo.setPosition(0.38);})
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{ArmV2.DropPixel(1);})
-                .addTemporalMarker(()->{arm.setArmPos(0.51, 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.513);Intake.intakeWristServo.setPosition(0.375 + wristPlay2);})
-//                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{ArmV2.DropPixel(1);})
-//                .addTemporalMarker(()->{ArmV2.DropPixel(1);})
-//                .waitSeconds(0.2) //start
-//                .UNSTABLE_addTemporalMarkerOffset(0.0,()->{Intake.intakeWristServo.setPosition(0.38);})
-//                .UNSTABLE_addTemporalMarkerOffset(0.5,()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
-//                .UNSTABLE_addTemporalMarkerOffset(0.7, ()->{Intake.intakeArmServo.setPosition(0.513);Intake.intakeWristServo.setPosition(0.375);})
-                .addTemporalMarker(()->{arm.setArmPos(0.51, 0.175);})
-                .addTemporalMarker(()->{arm.setArmPos(0.3, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(0.5, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.175);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{arm.setArmPos(0.15, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOnePos, 0.175);})
                 .resetConstraints()
                 .build();
 
@@ -213,7 +218,7 @@ public class RedNearAuto extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(-33,-10), -Math.PI)
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(35))
-                .addTemporalMarker(()->{arm.setArmPos(0.3, 0.16);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.38);})
 
                 .lineToSplineHeading(StackLeftPos)
@@ -237,9 +242,9 @@ public class RedNearAuto extends LinearOpMode {
 
                 .splineToConstantHeading(new Vector2d(36,-12),0) //28
 
-                .addTemporalMarker(()->{arm.setArmPos(0.15, 0.165);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOnePos, 0.165);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{Intake.IntakePixel(1);ArmV2.DropPixel(0.5);arm.setArmPos(0.1, 0.155);slider.extendTo(-10, 1);})
+                .addTemporalMarker(()->{Intake.IntakePixel(1);ArmV2.DropPixel(0.5);arm.setArmPos(0.95, 0.155);slider.extendTo(-10, 1);})
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{slider.extendTo(0, 1);})
                 .build();
@@ -253,17 +258,17 @@ public class RedNearAuto extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(-0.4,()->{arm.setArmPos(0.53, 0.68);})
                 .UNSTABLE_addTemporalMarkerOffset(-0.4, ()->{ArmV2.DropPixel(0.84);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{arm.setArmPos(0.49, 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .waitSeconds(0.2)
                 .addTemporalMarker(()->{ArmV2.DropPixel(1);})
-                .addTemporalMarker(()->{arm.setArmPos(0.51, 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(0.5, 0.68);})
                 .waitSeconds(0.3)
                 .UNSTABLE_addTemporalMarkerOffset(0.0,()->{Intake.intakeWristServo.setPosition(0.38);})
                 .UNSTABLE_addTemporalMarkerOffset(0.4,()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
-                .addTemporalMarker(()->{arm.setArmPos(0.51, 0.175);})
-                .addTemporalMarker(()->{arm.setArmPos(0.3, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(0.5, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.175);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{arm.setArmPos(0.15, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOnePos, 0.175);})
                 .resetConstraints()
                 .build();
 
@@ -284,41 +289,48 @@ public class RedNearAuto extends LinearOpMode {
         TrajectorySequence AutoTrajectoryCenter_Purple_Yellow = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
-                .lineToConstantHeading(PurpleCenter)
-
-                .UNSTABLE_addTemporalMarkerOffset(-0.5, ()->{arm.setArmPos(0.4, 0.16);})
+                //backdrop
+                .lineToConstantHeading(new Vector2d(25 , -23))
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.5);})
-                .addTemporalMarker(()->{Intake.IntakePixel(1);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(()->{arm.setArmPos(0.54, 0.66);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
-
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
-                .splineToConstantHeading(YellowCenter, 0)
-
-                .UNSTABLE_addTemporalMarkerOffset(-0.3,()->{ArmV2.DropPixel(1);})
-                .UNSTABLE_addTemporalMarkerOffset(0.0, ()->{Intake.intakeArmServo.setPosition(0.636);Intake.intakeWristServo.setPosition(0.262 + wristPlay1);})
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> {arm.setArmPos(0.3, 0.175);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(() -> {arm.setArmPos(0.15, 0.175);})
-                .setReversed(false)
+                .addTemporalMarker(()->{Intake.IntakePixel(1);})
+//                .UNSTABLE_addTemporalMarkerOffset(0.0,()->{Intake.IntakePixel(1);})
+                .waitSeconds(0.7)
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.57);})
+//                .waitSeconds(0.5)
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+//                .splineToConstantHeading(new Vector2d(50.5 - yellowDiff,-33.5), 0)
+                .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-35)) //33.5
+                .waitSeconds(0.3)
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
+                .waitSeconds(1)
+                .addTemporalMarker(()->{ArmV2.DropPixel(1);})
+                .waitSeconds(1)
                 .resetConstraints()
+                .addTemporalMarker(() -> {arm.setArmPos(0.5, 0.68);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(() -> {arm.setArmPos(armServoOneUP, 0.16);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
+                .waitSeconds(0.1)
+                .setReversed(false)
                 .build();
 
-        TrajectorySequence CenterPathPicking_Center = drive.trajectorySequenceBuilder(AutoTrajectoryCenter_Purple_Yellow.end())
-                .build();
-        TrajectorySequence CenterPathPlacing_Center = drive.trajectorySequenceBuilder(CenterPathPicking_Center.end())
-                .build();
-        TrajectorySequence WhiteDrop_Center = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end())
-                .build();
-        TrajectorySequence CenterPathPicking2_Center = drive.trajectorySequenceBuilder(WhiteDrop_Center.end())
-                .build();
-        TrajectorySequence CenterPathPlacing2_Center = drive.trajectorySequenceBuilder(CenterPathPicking2_Center.end())
-                .build();
-        TrajectorySequence WhiteDrop2_Center = drive.trajectorySequenceBuilder(CenterPathPlacing2_Center.end())
-                .build();
+//        TrajectorySequence CenterPathPicking_Center = drive.trajectorySequenceBuilder(AutoTrajectoryCenter_Purple_Yellow.end())
+//                .build();
+//        TrajectorySequence CenterPathPlacing_Center = drive.trajectorySequenceBuilder(CenterPathPicking_Center.end())
+//                .build();
+//        TrajectorySequence WhiteDrop_Center = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end())
+//                .build();
+//        TrajectorySequence CenterPathPicking2_Center = drive.trajectorySequenceBuilder(WhiteDrop_Center.end())
+//                .build();
+//        TrajectorySequence CenterPathPlacing2_Center = drive.trajectorySequenceBuilder(CenterPathPicking2_Center.end())
+//                .build();
+//        TrajectorySequence WhiteDrop2_Center = drive.trajectorySequenceBuilder(CenterPathPlacing2_Center.end())
+//                .build();
 
 
 
@@ -327,92 +339,84 @@ public class RedNearAuto extends LinearOpMode {
         TrajectorySequence AutoTrajectoryRight_Purple_Yellow = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
-                .lineToConstantHeading(PurpleRight)
-
+                //backdrop
+                .lineToConstantHeading(new Vector2d(32 , -30))
+                .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
-                .addTemporalMarker(()->{arm.setArmPos(0.4, 0.16);})
-                .waitSeconds(0.3)
-                .addTemporalMarker(()->{arm.setArmPos(0.5, 0.66);})
-
+                .waitSeconds(0.5)
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
-                .splineToConstantHeading(YellowRight, 0)
-
-                .UNSTABLE_addTemporalMarkerOffset(-0.3,()->{ArmV2.DropPixel(1);})
-                .UNSTABLE_addTemporalMarkerOffset(0.0, ()->{Intake.intakeArmServo.setPosition(0.636);Intake.intakeWristServo.setPosition(0.262 + wristPlay1);})
+//                .splineToConstantHeading(new Vector2d(51 - yellowDiff,-41), 0)
+                .lineToConstantHeading(new Vector2d(51 - yellowDiff,-41))
                 .waitSeconds(0.3)
-                .addTemporalMarker(() -> {arm.setArmPos(0.3, 0.175);})
-                .waitSeconds(0.2)
-                .addTemporalMarker(() -> {arm.setArmPos(0.15, 0.175);})
-                .setReversed(false)
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.64);})
+                .waitSeconds(1)
+                .addTemporalMarker(()->{ArmV2.DropPixel(1);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.67);})
+                .waitSeconds(1)//0.55
                 .resetConstraints()
+
+                //pixel intake // round 1
+                .addTemporalMarker(() -> {arm.setArmPos(0.5, 0.68);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(() -> {arm.setArmPos(armServoOneUP, 0.16);})
+                .waitSeconds(0.2)
+                .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
+                .waitSeconds(0.2)
                 .build();
 
-        TrajectorySequence CenterPathPicking_Right = drive.trajectorySequenceBuilder(AutoTrajectoryRight_Purple_Yellow.end())
-                .build();
-        TrajectorySequence CenterPathPlacing_Right = drive.trajectorySequenceBuilder(CenterPathPicking_Right.end())
-                .build();
-        TrajectorySequence WhiteDrop_Right = drive.trajectorySequenceBuilder(CenterPathPlacing_Right.end())
-                .build();
-        TrajectorySequence CenterPathPicking2_Right = drive.trajectorySequenceBuilder(WhiteDrop_Right.end())
-                .build();
-        TrajectorySequence CenterPathPlacing2_Right = drive.trajectorySequenceBuilder(CenterPathPicking2_Right.end())
-                .build();
-        TrajectorySequence WhiteDrop2_Right = drive.trajectorySequenceBuilder(CenterPathPlacing2_Right.end())
+//        TrajectorySequence CenterPathPicking_Right = drive.trajectorySequenceBuilder(AutoTrajectoryRight_Purple_Yellow.end())
+//                .build();
+//        TrajectorySequence CenterPathPlacing_Right = drive.trajectorySequenceBuilder(CenterPathPicking_Right.end())
+//                .build();
+//        TrajectorySequence WhiteDrop_Right = drive.trajectorySequenceBuilder(CenterPathPlacing_Right.end())
+//                .build();
+//        TrajectorySequence CenterPathPicking2_Right = drive.trajectorySequenceBuilder(WhiteDrop_Right.end())
+//                .build();
+//        TrajectorySequence CenterPathPlacing2_Right = drive.trajectorySequenceBuilder(CenterPathPicking2_Right.end())
+//                .build();
+//        TrajectorySequence WhiteDrop2_Right = drive.trajectorySequenceBuilder(CenterPathPlacing2_Right.end())
+//                .build();
+
+
+
+        propPipeline = new PropPipeline();
+        portal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCameraResolution(new Size(1280, 720))
+                .addProcessor(propPipeline)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .enableLiveView(true)
+                .setAutoStopLiveView(true)
                 .build();
 
+        while (getCameraState() != VisionPortal.CameraState.STREAMING && portal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            telemetry.addLine("initializing... please wait");
+            telemetry.update();
+        }
 
         while (opModeInInit()) {
             Intake.IntakePixel(0.8);
             sleep(100);
             slider.extendToHome();
-            ArmV2.SetArmPosition(0.15, 0.16);
+            ArmV2.SetArmPosition(armServoOnePos, 0.16);
             Intake.SetArmPosition(0.5, 0.66);
             ArmV2.DropPixel(0.8);
             Intake.CrankPosition(0.69);
             ArmV2.SliderLink(0.95);
 
-            List<Recognition> currentRecognitions = tfod.getRecognitions();
-            telemetry.addData("# Objects Detected", currentRecognitions.size());
-            if (currentRecognitions.size() != 0) {
-
-                boolean objectFound = false;
-
-                for (Recognition recognition : currentRecognitions) {
-                    x = (recognition.getLeft() + recognition.getRight()) / 2;
-                    y = (recognition.getTop() + recognition.getBottom()) / 2;
-
-                    objectFound = true;
-
-                    telemetry.addLine("Beacon");
-                    telemetry.addData("", " ");
-                    telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-                    telemetry.addData("- Position", "%.0f / %.0f", x, y);
-                    telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-                    telemetry.update();
-
-                    break;
-                }
-
-                if (objectFound) {
-
-//                    Adjust values according to your bot and camera position
-                    if (x >= 800 && x <= 1100) {
-                        propPosition = "right";
-                    } else if (x >= 500 && x <= 790) {
-                        propPosition = "center";
-                    } else if (x >= 200 && x <= 490) {
-                        propPosition = "left";
-                    }
-
-
-                } else {
-                    telemetry.addLine("Don't see the beacon :(");
-                }
-                telemetry.addData("position", propPosition);
-                telemetry.update();
-                telemetry.update();
+            telemetry.addLine("ready");
+            try{
+                propPosition = propPipeline.getLocation().toString();
+            }catch (Exception e){
+                propPosition="RIGHT";
             }
+            telemetry.addData("position", propPipeline.getLocation());
+            telemetry.addData("marker",propPosition);
+            telemetry.update();
         }
+        portal.close();
 
         waitForStart();
 
@@ -421,7 +425,7 @@ public class RedNearAuto extends LinearOpMode {
             //LEFT TRAJECTORY
             switch (currentLeftState){
                 case Start:
-                    if (gamepad1.x || propPosition == "left"){
+                    if (gamepad1.x || propPosition == "LEFT"){
                         if(!drive.isBusy()){
                             currentLeftState = AutoTrajectoryLeft.AutoTrajectoryLeft_Purple_Yellow;
                             drive.followTrajectorySequenceAsync(AutoTrajectoryLeft_Purple_Yellow);
@@ -448,28 +452,31 @@ public class RedNearAuto extends LinearOpMode {
                     break;
                 case WhiteDrop_Left:
                     if(!drive.isBusy()){
-                        currentLeftState = AutoTrajectoryLeft.CenterPathPicking2;
-                        drive.followTrajectorySequenceAsync(CenterPathPicking2);
-                    }
-                    break;
-                case CenterPathPicking2:
-                    if(!drive.isBusy()){
-                        currentLeftState = AutoTrajectoryLeft.CenterPathPlacing2;
-                        drive.followTrajectorySequenceAsync(CenterPathPlacing2);
-                    }
-                    break;
-                case CenterPathPlacing2:
-                    if(!drive.isBusy()){
-                        currentLeftState = AutoTrajectoryLeft.WhiteDrop2_Left;
-                        drive.followTrajectorySequenceAsync(WhiteDrop2_Left);
-                    }
-                    break;
-                case WhiteDrop2_Left:
-                    if(!drive.isBusy()){
+//                        currentLeftState = AutoTrajectoryLeft.CenterPathPicking2;
+//                        drive.followTrajectorySequenceAsync(CenterPathPicking2);
+
                         currentLeftState = AutoTrajectoryLeft.ParkingIn;
-//                        drive.followTrajectorySequenceAsync(ParkingIn);
+                        drive.followTrajectorySequenceAsync(ParkingIn);
                     }
                     break;
+//                case CenterPathPicking2:
+//                    if(!drive.isBusy()){
+//                        currentLeftState = AutoTrajectoryLeft.CenterPathPlacing2;
+//                        drive.followTrajectorySequenceAsync(CenterPathPlacing2);
+//                    }
+//                    break;
+//                case CenterPathPlacing2:
+//                    if(!drive.isBusy()){
+//                        currentLeftState = AutoTrajectoryLeft.WhiteDrop2_Left;
+//                        drive.followTrajectorySequenceAsync(WhiteDrop2_Left);
+//                    }
+//                    break;
+//                case WhiteDrop2_Left:
+//                    if(!drive.isBusy()){
+//                        currentLeftState = AutoTrajectoryLeft.ParkingIn;
+//                        drive.followTrajectorySequenceAsync(ParkingIn);
+//                    }
+//                    break;
                 case ParkingIn:
                     if(!drive.isBusy()){
                         currentLeftState = AutoTrajectoryLeft.IDLE;
@@ -485,7 +492,7 @@ public class RedNearAuto extends LinearOpMode {
             //CENTER TRAJECTORY
 //            switch (currentCenterState){
 //                case Start:
-//                    if (gamepad1.y || propPosition == "center"){
+//                    if (gamepad1.y || propPosition == "CENTER"){
 //                        if(!drive.isBusy()){
 //                            currentCenterState = AutoTrajectoryCenter.AutoTrajectoryCenter_Purple_Yellow;
 //                            drive.followTrajectorySequenceAsync(AutoTrajectoryCenter_Purple_Yellow);
@@ -549,7 +556,7 @@ public class RedNearAuto extends LinearOpMode {
             //RIGHT TRAJECTORY
 //            switch (currentRightState){
 //                case Start:
-//                    if (gamepad1.b || propPosition == "right"){
+//                    if (gamepad1.b || propPosition == "RIGHT"){
 //                        if(!drive.isBusy()){
 //                            currentRightState = AutoTrajectoryRight.AutoTrajectoryRight_Purple_Yellow;
 //                            drive.followTrajectorySequenceAsync(AutoTrajectoryRight_Purple_Yellow);
@@ -619,61 +626,11 @@ public class RedNearAuto extends LinearOpMode {
             drive.update();
             telemetry.update();
         }
-        visionPortal.close();
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
-    private void initTfod() {
-
-        // Create the TensorFlow processor by using a builder.
-        tfod = new TfodProcessor.Builder()
-
-                // With the following lines commented out, the default TfodProcessor Builder
-                // will load the default model for the season. To define a custom model to load,
-                // choose one of the following:
-                .setModelAssetName(TFOD_MODEL_ASSET)
-                .setModelLabels(LABELS)
-                //.setIsModelTensorFlow2(true)
-                //.setIsModelQuantized(true)
-                //.setModelInputSize(300)
-                //.setModelAspectRatio(16.0 / 9.0)
-
-                .build();
-
-        // Create the vision portal by using a builder.
-
-
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"));
-
-
-        // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(1280, 720));
-
-        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        builder.enableLiveView(true);
-
-        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
-        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
-
-        // Choose whether or not LiveView stops if no processors are enabled.
-        // If set "true", monitor shows solid orange screen if no processors enabled.
-        // If set "false", monitor shows camera view without annotations.
-        builder.setAutoStopLiveView(false);
-
-        // Set and enable the processor.
-        builder.addProcessor(tfod);
-
-        // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
-        telemetry.addLine("init done");
-        telemetry.update();
-
-        // Set confidence threshold for TFOD recognitions, at any time.
-        tfod.setMinResultConfidence(0.92f);
-
-        // Disable or re-enable the TFOD processor at any time.
-        //visionPortal.setProcessorEnabled(tfod, true);
-
+    public VisionPortal.CameraState getCameraState() {
+        if (portal != null) return portal.getCameraState();
+        return null;
     }
     public double lifter_pid(double kp_lifter, double ki_lifter, double kd_lifter, int target)
     {
