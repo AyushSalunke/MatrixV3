@@ -29,7 +29,7 @@ import java.util.List;
 
 @Autonomous(name="BLUEFarAuto_1Cycle", group = "2Cycle_Autos")
 @Config
-@Disabled
+//@Disabled
 public class BlueFarAuto extends LinearOpMode {
     SampleMecanumDrive drive = null;
     Slider slider = null;
@@ -205,13 +205,14 @@ public class BlueFarAuto extends LinearOpMode {
         TrajectorySequence CenterPathPlacing2 = drive.trajectorySequenceBuilder(CenterPathPicking.end())
                 .lineToSplineHeading(new Pose2d(-34 , 12, -Math.PI))
 
-                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.55);Intake.intakeWristServo.setPosition(0.38 + wristPlay2);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.55);Intake.intakeWristServo.setPosition(0.35 + wristPlay2);})
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
@@ -356,13 +357,14 @@ public class BlueFarAuto extends LinearOpMode {
         TrajectorySequence CenterPathPlacing_Center2 = drive.trajectorySequenceBuilder(CenterPathPicking_Center.end())
                 .lineToSplineHeading(new Pose2d(-34 , 12, -Math.PI))
 
-                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.55);Intake.intakeWristServo.setPosition(0.38 + wristPlay2);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.55);Intake.intakeWristServo.setPosition(0.35 + wristPlay2);})
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
@@ -503,13 +505,14 @@ public class BlueFarAuto extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(-34 , 12, -Math.PI))
                 .waitSeconds(1)
 
-                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.55);Intake.intakeWristServo.setPosition(0.38 + wristPlay2);})
                 .addTemporalMarker(()->{arm.setArmPos(0.8, 0.16);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
 
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.55);Intake.intakeWristServo.setPosition(0.35 + wristPlay2);})
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
@@ -571,7 +574,7 @@ public class BlueFarAuto extends LinearOpMode {
 
         while (opModeInInit()) {
             slider.extendToHome();
-            ArmV2.SetArmPosition(0.15, 0.16);
+            ArmV2.SetArmPosition(armServoOnePos, 0.16);
             Intake.SetArmPosition(0.5, 0.66);
             Intake.IntakePixel(0.8);
             ArmV2.DropPixel(0.8);
