@@ -46,10 +46,10 @@ public class BlueFarAuto extends LinearOpMode {
 
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double stackDiff = 3;
+    public static double stackDiff = 0;
     public static double yellowDiff = 3;
     public static Pose2d PurpleRightPos = new Pose2d(-35,32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51.5 , 12 + stackDiff, -Math.PI); //-51
-    public static Vector2d PurpleRight, YellowRight = new Vector2d(53.5 - yellowDiff,30.5), StackRight = new Vector2d(-51, 12.5); //53.5
+    public static Vector2d PurpleRight, YellowRight = new Vector2d(50.5 - yellowDiff,30.5), StackRight = new Vector2d(-51, 12.5); //53.5
 
 
     public static Pose2d PurpleLeftPos = new Pose2d(-40,30, 0), YellowLeftPos, StackLeftPos = new Pose2d(-51 , 13 + stackDiff, -Math.PI); //-44
@@ -163,7 +163,7 @@ public class BlueFarAuto extends LinearOpMode {
 
         TrajectorySequence AutoTrajectoryRightYellow = drive.trajectorySequenceBuilder(CenterPathPlacing.end())
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
-                .lineToConstantHeading(new Vector2d(49.5, 43))
+                .lineToConstantHeading(new Vector2d(50, 43))
 
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, ()->{arm.setArmPos(armServoOnePos, 0.16);})
                 .UNSTABLE_addTemporalMarkerOffset(-0.3,()->{Intake.IntakePixel(1);ArmV2.DropPixel(0.5);arm.setArmPos(0.95, 0.15);slider.extendTo(-10, 1);})
@@ -233,8 +233,8 @@ public class BlueFarAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence AutoTrajectoryRightYellow2 = drive.trajectorySequenceBuilder(CenterPathPlacing2.end())
-                .splineToConstantHeading(new Vector2d(49.5, 45), 0)
-                .lineToConstantHeading(new Vector2d(50, 45))
+                .splineToConstantHeading(new Vector2d(50, 45), 0)
+                .lineToConstantHeading(new Vector2d(50.5, 45))
 
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(0.53, 0.175);})
                 .UNSTABLE_addTemporalMarkerOffset(-0.1,()->{arm.setArmPos(0.53, 0.68);})
@@ -249,9 +249,9 @@ public class BlueFarAuto extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0.0,()->{Intake.intakeWristServo.setPosition(0.38);})
                 .UNSTABLE_addTemporalMarkerOffset(0.4,()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
                 .addTemporalMarker(()->{arm.setArmPos(0.50, 0.68);})
-                .addTemporalMarker(()->{arm.setArmPos(0.4, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(0.7, 0.175);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{arm.setArmPos(0.15, 0.175);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOnePos, 0.175);})
                 .resetConstraints()
                 .build();
 

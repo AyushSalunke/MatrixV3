@@ -439,7 +439,7 @@ public class RedFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
                 .addTemporalMarker(()->{arm.setArmPos(0.8, 0.16);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)

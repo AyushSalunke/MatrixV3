@@ -44,19 +44,20 @@ public class BlueNearAuto extends LinearOpMode {
 
     public static double stackDiff = 0.5;
 
-    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-53 - stackDiff, 10, -Math.PI); //-51,-12
-    public static Vector2d PurpleLeft = new Vector2d(16 , 29), YellowLeft = new Vector2d(50,26), StackLeft; //25
+    public static double yellowDiff = 3.0;
+
+    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-51 + stackDiff, 11, -Math.PI); //-51,-12
+    public static Vector2d PurpleLeft = new Vector2d(16 , 29), YellowLeft = new Vector2d(50,43), StackLeft; //25
 
     public static Pose2d PurpleCenterPos, YellowCenterPos, StackCenterPos;
-    public static Vector2d PurpleCenter = new Vector2d(25 , 21), YellowCenter = new Vector2d(53,35), StackCenter;
+    public static Vector2d PurpleCenter = new Vector2d(25 , 21), YellowCenter = new Vector2d(50,35), StackCenter;
 
     public static Pose2d PurpleRightPos, YellowRightPos, StackRightPos;
-    public static Vector2d PurpleRight = new Vector2d(35 , 30), YellowRight = new Vector2d(52,41), StackRight;
+    public static Vector2d PurpleRight = new Vector2d(16 , 29), YellowRight = new Vector2d(50 ,28), StackRight;
 
-    public static double wristPlay1 = -0.01, wristPlay2 = 0.00;
+    public static double wristPlay1 = 0.00, wristPlay2 = 0.00;
 
     public static double armServoOnePos = 0.92, armServoOneUP = 0.8, armServoOneOut = 0.47;
-    public static double yellowDiff = 3.5;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;
@@ -115,7 +116,7 @@ public class BlueNearAuto extends LinearOpMode {
         Globals.ALLIANCE = Location.RED;
         Globals.SIDE = Location.CLOSE;
 
-        Pose2d startPose=new Pose2d(14, -62, -Math.PI);
+        Pose2d startPose=new Pose2d(14, 62, -Math.PI);
         drive.setPoseEstimate(startPose);
 
 
@@ -167,6 +168,7 @@ public class BlueNearAuto extends LinearOpMode {
 
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.650);Intake.intakeWristServo.setPosition(0.23 + wristPlay1);})
+                .waitSeconds(0.1)
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{intake.setArm(0.65, 0.4);})
@@ -346,7 +348,8 @@ public class BlueNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
                 //backdrop
-                .lineToConstantHeading(new Vector2d(16 , 29))
+                .lineToConstantHeading(PurpleRight)
+
                 .addTemporalMarker(()->{Intake.CrankPosition(0.35);arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.48);})
@@ -354,8 +357,10 @@ public class BlueNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
+
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
-                .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-28))
+                .lineToConstantHeading(YellowRight)
+
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .waitSeconds(0.4)
@@ -372,7 +377,7 @@ public class BlueNearAuto extends LinearOpMode {
 
         TrajectorySequence CenterPathPicking_Right = drive.trajectorySequenceBuilder(AutoTrajectoryRight_Purple_Yellow.end())
                 .splineToConstantHeading(new Vector2d(18,7), -Math.PI)
-                .splineToConstantHeading(new Vector2d(-34,10), -Math.PI)
+                .splineToConstantHeading(new Vector2d(-30,11), -Math.PI)
                 .waitSeconds(0.1)
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
@@ -383,7 +388,7 @@ public class BlueNearAuto extends LinearOpMode {
                 .lineToSplineHeading(StackLeftPos)
 
                 .waitSeconds(0.5)
-                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.650);Intake.intakeWristServo.setPosition(0.23 + wristPlay1);})
+                .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.650);Intake.intakeWristServo.setPosition(0.22 + wristPlay1);})
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{intake.setArm(0.65, 0.4);})
@@ -394,7 +399,7 @@ public class BlueNearAuto extends LinearOpMode {
 
 
         TrajectorySequence CenterPathPlacing_Right = drive.trajectorySequenceBuilder(CenterPathPicking_Right.end())
-                .splineToConstantHeading(new Vector2d(-34,10),0)
+                .splineToConstantHeading(new Vector2d(-34,11),0)
 
                 .UNSTABLE_addTemporalMarkerOffset(0.0, ()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.66);Intake.IntakePixel(0.77);})
                 .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{Intake.intakeArmServo.setPosition(0.75);Intake.IntakePixel(0.77);})
@@ -414,8 +419,8 @@ public class BlueNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{arm.setArmPos(0.55, 0.175);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{arm.setArmPos(0.51, 0.6);ArmV2.SliderLink(0.5);})
-                .splineToConstantHeading(new Vector2d(45, 36), 0)
-                .lineToConstantHeading(new Vector2d(45.5, 36))
+                .splineToConstantHeading(new Vector2d(46, 36), 0)
+                .lineToConstantHeading(new Vector2d(46.5, 36))
 
 //                .UNSTABLE_addTemporalMarkerOffset(-1,()->{arm.setArmPos(armServoOneOut, 0.175);})
 //                .UNSTABLE_addTemporalMarkerOffset(-0.4,()->{arm.setArmPos(armServoOneOut, 0.68);ArmV2.SliderLink(0.5);})
@@ -506,7 +511,7 @@ public class BlueNearAuto extends LinearOpMode {
                 .build();
 
         TrajectorySequence ParkingIn = drive.trajectorySequenceBuilder(WhiteDrop_Right.end())
-                .lineToConstantHeading(new Vector2d(58, -60))
+                .lineToConstantHeading(new Vector2d(50, 60))
 //                .turn(-Math.PI/2)
                 .build();
 
@@ -734,11 +739,11 @@ public class BlueNearAuto extends LinearOpMode {
 ////                        drive.followTrajectorySequenceAsync(ParkingIn);
 //                    }
 //                    break;
-                case ParkingIn:
-                    if(!drive.isBusy()){
-                        currentRightState = AutoTrajectoryRight.IDLE;
-                    }
-                    break;
+//                case ParkingIn:
+//                    if(!drive.isBusy()){
+//                        currentRightState = AutoTrajectoryRight.IDLE;
+//                    }
+//                    break;
                 case IDLE:
                     break;
             }
