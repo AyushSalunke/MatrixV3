@@ -47,13 +47,13 @@ public class BlueSafeFarAuto extends LinearOpMode {
     public static double kp = 4, ki, kd = 1.7;
 
     public static double stackDiff = 1.0;
-    public static double yellowDiff = 3;
+    public static double yellowDiff = 4.5;
     public static Pose2d PurpleRightPos = new Pose2d(-35,32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51.5 , 12 + stackDiff, -Math.PI); //-51
     public static Vector2d PurpleRight, YellowRight = new Vector2d(53.5 - yellowDiff,30.5), StackRight = new Vector2d(-51, 12.5); //53.5
 
 
     public static Pose2d PurpleLeftPos = new Pose2d(-40,30, 0), YellowLeftPos, StackLeftPos = new Pose2d(-51 , 13 + stackDiff, -Math.PI); //-44
-    public static Vector2d PurpleLeft, YellowLeft = new Vector2d(53.5 - yellowDiff,43), StackLeft = new Vector2d(-51, 12); //48
+    public static Vector2d PurpleLeft, YellowLeft = new Vector2d(53.5 - yellowDiff,43.5), StackLeft = new Vector2d(-51, 12); //48
 
 
     public static Pose2d PurpleCenterPos = new Pose2d(-51,24, 0), YellowCenterPos, StackCenterPos = new Pose2d(-51 , 12, -Math.PI); //51
@@ -151,6 +151,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{slider.extendTo(0, 1);})
 
                 .splineToConstantHeading(new Vector2d(36,12),0) //28
+                .waitSeconds(5)  //setpoint for kop
                 .build();
 
         TrajectorySequence AutoTrajectoryRightYellow = drive.trajectorySequenceBuilder(CenterPathPlacing.end())
@@ -245,6 +246,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{slider.extendTo(0, 1);})
 
                 .splineToConstantHeading(new Vector2d(36,12),0) //28
+                .waitSeconds(5)  //setpoint for kop
                 .build();
 
         TrajectorySequence AutoTrajectoryCenterYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end())
@@ -294,7 +296,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{arm.setArmPos(0.8, 0.175);})
                 .waitSeconds(0.2)
-                .addTemporalMarker(()->{Intake.CrankPosition(0.5);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.47);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
                 .waitSeconds(0.3)
@@ -332,6 +334,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{slider.extendTo(0, 1);})
 
                 .splineToConstantHeading(new Vector2d(36,12),0) //28
+                .waitSeconds(5)  //setpoint for kop
 //                .waitSeconds(30)
                 .build();
 

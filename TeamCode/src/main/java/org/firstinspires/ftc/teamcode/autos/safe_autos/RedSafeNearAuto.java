@@ -154,7 +154,7 @@ public class RedSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
 //                .splineToConstantHeading(new Vector2d(50.5 - yellowDiff,-27.5), 0)
-                .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-29))
+                .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-28)) //-29
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .waitSeconds(0.4)

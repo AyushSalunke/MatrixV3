@@ -47,7 +47,7 @@ public class RedSafeFarAuto extends LinearOpMode {
 
 
     public static double stackDiff = 0.0;
-    public static double yellowDiff = 3.5;
+    public static double yellowDiff = 4.5;
     public static Pose2d PurpleRightPos = new Pose2d(-38,-32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51 , -12 + stackDiff, -Math.PI); //53
     public static Vector2d PurpleRight, YellowRight = new Vector2d(53.5 - yellowDiff,-42.5), StackRight = new Vector2d(-51, -12.5 + stackDiff);
 
@@ -164,6 +164,7 @@ public class RedSafeFarAuto extends LinearOpMode {
 //                .addTemporalMarker(()->{slider.extendTo(0, 1);})
 
                 .splineToConstantHeading(new Vector2d(36,-12),0) //28
+                .waitSeconds(5)  //setpoint for kop
                 .build();
 
         TrajectorySequence AutoTrajectoryLeftYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Left.end())
@@ -287,6 +288,7 @@ public class RedSafeFarAuto extends LinearOpMode {
 //                .addTemporalMarker(()->{slider.extendTo(0, 1);})
 
                 .splineToConstantHeading(new Vector2d(36,-12),0) //28
+                .waitSeconds(5)  //setpoint for kop
                 .build();
 
         TrajectorySequence AutoTrajectoryCenterYellow = drive.trajectorySequenceBuilder(CenterPathPlacing_Center.end())
@@ -385,6 +387,7 @@ public class RedSafeFarAuto extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{slider.extendTo(0, 1);})
 
                 .splineToConstantHeading(new Vector2d(36,-12),0) //28
+                .waitSeconds(5)  //setpoint for kop
                 .build();
 
         TrajectorySequence AutoTrajectoryRightYellow = drive.trajectorySequenceBuilder(CenterPathPlacing.end())
