@@ -49,7 +49,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
     public static double armServoOnePos = 0.92, armServoOneUP = 0.7, armServoOneOut = 0.49;
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double yellowDiff = 2.5;
+    public static double yellowDiff = 3.5;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;
@@ -84,7 +84,8 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
-                .lineToConstantHeading(new Vector2d(51 - yellowDiff,27))
+                .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,27))
+
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.65);})
                 .waitSeconds(0.4)
@@ -92,8 +93,6 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .waitSeconds(0.4)//0.55
                 .addTemporalMarker(this::telem)
                 .resetConstraints()
-
-                //pixel intake // round 1
                 .addTemporalMarker(() -> {arm.setArmPos(0.50, 0.68);})
                 .waitSeconds(0.3)
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOneUP, 0.16);})
@@ -101,8 +100,8 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
                 .waitSeconds(0.1)
                 .lineToConstantHeading(new Vector2d(51, 60))
-//                .turn(Math.PI/2)
                 .setReversed(false)
+                .waitSeconds(30)
                 .build();
 
         TrajectorySequence AutoTrajectoryCenter = drive.trajectorySequenceBuilder(startPose)
@@ -110,18 +109,19 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
                 //backdrop
-                .lineToConstantHeading(new Vector2d(28 , 22))
+                .lineToConstantHeading(new Vector2d(25 , 22))
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.5)
-//                .addTemporalMarker(()->{arm.setArmPos(0.54, 0.68);})
                 .addTemporalMarker(this::telem)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.45);})
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
+
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
                 .splineToConstantHeading(new Vector2d(51 - yellowDiff,35.5), 0)
+
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.67);})
                 .waitSeconds(1)
@@ -129,9 +129,6 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .waitSeconds(1)//0.55
                 .addTemporalMarker(this::telem)
                 .resetConstraints()
-//                .setReversed(false)
-
-                //pixel intake // round 1
                 .addTemporalMarker(() -> {arm.setArmPos(0.5, 0.68);})
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOneUP, 0.16);})
@@ -139,11 +136,9 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
                 .waitSeconds(0.1)
                 .lineToConstantHeading(new Vector2d(50, 60))
-//                .turn(Math.PI/2)
-//                .strafeRight(10)
                 .setReversed(false)
+                .waitSeconds(30)
                 .build();
-        //pixel intake // round 2-------
 
         TrajectorySequence AutoTrajectoryLeft = drive.trajectorySequenceBuilder(startPose)
 
@@ -151,7 +146,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
                 //backdrop
-                .lineToConstantHeading(new Vector2d(33 , 28))
+                .lineToConstantHeading(new Vector2d(30 , 28))
 
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.2)
@@ -162,11 +157,12 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.5)
-//                .addTemporalMarker(()->{arm.setArmPos(0.54, 0.68);})
                 .addTemporalMarker(this::telem)
+
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
 //                .splineToConstantHeading(new Vector2d(51 - yellowDiff,43), 0)
                 .lineToConstantHeading(new Vector2d(51 - yellowDiff,45))
+
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .waitSeconds(1)
@@ -174,9 +170,6 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .waitSeconds(1)//0.55
                 .addTemporalMarker(this::telem)
                 .resetConstraints()
-//                .setReversed(false)
-
-                //pixel intake // round 1
                 .addTemporalMarker(() -> {arm.setArmPos(0.5, 0.68);})
                 .waitSeconds(0.2)
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOneUP, 0.16);})
@@ -184,11 +177,8 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
                 .waitSeconds(0.1)
                 .lineToConstantHeading(new Vector2d(50.5, 60))
-//                .turn(Math.PI/2)
-//                .strafeRight(6)
                 .setReversed(false)
-                //pixel intake // round 2------------------------------------------------------------
-
+                .waitSeconds(30)
                 .build();
 
         propPipeline = new PropPipeline();

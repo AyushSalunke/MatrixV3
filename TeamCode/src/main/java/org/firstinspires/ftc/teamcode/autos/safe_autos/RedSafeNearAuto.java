@@ -95,7 +95,6 @@ public class RedSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, 0.16);})
                 .waitSeconds(0.2)
                 .lineToConstantHeading(new Vector2d(48, -60))
-//                .turn(-Math.PI/2)
                 .setReversed(false)
                 .waitSeconds(30)
                 .build();
