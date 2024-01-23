@@ -46,7 +46,7 @@ public class RedNearAuto extends LinearOpMode {
 
     public static double stackDiff = 0.5;
 
-    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-53 - stackDiff, -10, -Math.PI); //-51,-12
+    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-52 - stackDiff, -12.5, -Math.PI); //-51,-12
     public static Vector2d PurpleLeft = new Vector2d(16 , -29), YellowLeft = new Vector2d(50,-26), StackLeft; //25
 
     public static Pose2d PurpleCenterPos, YellowCenterPos, StackCenterPos;
@@ -341,6 +341,7 @@ public class RedNearAuto extends LinearOpMode {
 
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.650);Intake.intakeWristServo.setPosition(0.23 + wristPlay1);})
+                .waitSeconds(0.2)
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{intake.setArm(0.65, 0.4);})
@@ -370,8 +371,8 @@ public class RedNearAuto extends LinearOpMode {
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{arm.setArmPos(0.51, 0.6);ArmV2.SliderLink(0.5);})
 
-                .splineToConstantHeading(new Vector2d(45, -31), 0)
-                .lineToConstantHeading(new Vector2d(45.5, -31))
+                .splineToConstantHeading(new Vector2d(44.5, -31), 0)
+                .lineToConstantHeading(new Vector2d(45, -31))
 
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
                 .waitSeconds(0.5)

@@ -40,7 +40,7 @@ import java.util.List;
 
 @TeleOp(group = "Robot Practice")
 @Config
-@Disabled
+//@Disabled
 public class MatrixFinalCOPY extends LinearOpMode {
     SampleMecanumDrive drive = null;
     DriveTrain drivetrain = null;

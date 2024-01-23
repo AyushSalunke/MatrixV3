@@ -414,7 +414,7 @@ public class MatrixFinalV2 extends LinearOpMode {
                         TrajectorySequence CancelIntakePixel = drive.trajectorySequenceBuilder(startPose)
                                 .addTemporalMarker(() -> {Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
                                 .waitSeconds(0.2)
-                                .addTemporalMarker(() -> {Intake.CrankPosition(0.69);})
+                                .addTemporalMarker(() -> {Intake.CrankPosition(0.7);})
                                 .waitSeconds(0.3)
                                 .addTemporalMarker(() -> {arm.setArmPos(armServoOnePos, wristServoPos);})
 //                                .waitSeconds(0.3)
@@ -427,7 +427,7 @@ public class MatrixFinalV2 extends LinearOpMode {
                     }
                     break;
                 case INTAKE_RETRACT:
-                    Intake.CrankPosition(0.69);
+                    Intake.CrankPosition(0.7);
                     if (intake_stack_command == "FiveStackGo") {
                         Intake.intakeArmServo.setPosition(0.67);
                         Intake.intakeWristServo.setPosition(0.258);
@@ -436,7 +436,7 @@ public class MatrixFinalV2 extends LinearOpMode {
                         Intake.intakeArmServo.setPosition(0.53);
                         Intake.intakeWristServo.setPosition(0.39);
                     }
-                    if (Intake.crankServo.getPosition() == 0.69 && inputTimer.milliseconds()>=450){
+                    if (Intake.crankServo.getPosition() == 0.7 && inputTimer.milliseconds()>=450){
                         Intake.intakeArmServo.setPosition(0.4);
                         Intake.intakeWristServo.setPosition(0.5);
                         if (inputTimer.milliseconds() >= 550 ) { //inputTimer.milliseconds() >= 300 // 500 //800
@@ -683,7 +683,7 @@ public class MatrixFinalV2 extends LinearOpMode {
                         .addTemporalMarker(()->{})
                         .addTemporalMarker(()->{Intake.intakeWristServo.setPosition(0.65); Intake.intakeArmServo.setPosition(0.5);})
                         .addTemporalMarker(()->{Intake.IntakePixel(1);})
-                        .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
+                        .addTemporalMarker(()->{Intake.CrankPosition(0.7);})
                         .waitSeconds(0.5)
                         .addTemporalMarker(()->{arm.setArmPos(armServoOnePos, wristServoPos);})
                         .waitSeconds(0.5)
