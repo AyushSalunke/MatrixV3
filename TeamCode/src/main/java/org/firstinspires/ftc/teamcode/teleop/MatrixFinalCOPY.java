@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -57,14 +58,14 @@ public class MatrixFinalCOPY extends LinearOpMode {
     double initYaw;
     double adjustedYaw;
 
-    ElapsedTime inputTimer, outputTimer, angle_timer, dropTimer;
+    ElapsedTime inputTimer, outputTimer, angle_timer, dropTimer, gripTimer;
     public static double
             armServoOnePos = 0.92, armServoOneUP = 0.8, wristServoPos = 0.175, wristServoOutPos, deliveryServoPos, armSliderServoPos;
     public static double
             gripperServoPos, intakeArmServoPos, intakeWristServoPos, crankServoPos;
     public static int levelZero = 0, levelOne = 200, levelTwo = 400, levelThree = 500;
     boolean
-            armToggle = false, intakeToggle = false, crankToggle = false,stackFlag = false, resetIntakeFlag = false;
+            armToggle = false, intakeToggle = false, crankToggle = false,stackFlag = false, resetIntakeFlag = false, onlyGripToggle = false;
     public static int intakeCounter, outtakeCounter,sliderCounter =0;
     public static double
             lifter_posL = 0, lifter_posR = 0, error_lifter, error_diff, error_int, error_lifterR, error_diffR, error_intR, errorprev, errorprevR, output_lifter, output_lifterR, output_power, target, dropVal;
@@ -92,8 +93,21 @@ public class MatrixFinalCOPY extends LinearOpMode {
         OUTTAKE_SLIDER,
         OUTTAKE_FINAL
     };
+    public enum OnlyGrip {
+        INTAKE_START,
+        INTAKE_GRIP,
+        INTAKE_FINAL
+    }
+    public enum DropPixel {
+        DROP_START,
+        DROP_ONE_PIXEL,
+        DROP_TWO_PIXEL,
+        RESET_ARM,
+    }
     IntakeState inputState = IntakeState.INTAKE_START;
     OuttakeState outputState = OuttakeState.OUTTAKE_START;
+    OnlyGrip gripState = OnlyGrip.INTAKE_START;
+    DropPixel dropState = DropPixel.DROP_START;
     public static String intake_stack_command = "GroundIntake";
 
     @Override
@@ -132,27 +146,17 @@ public class MatrixFinalCOPY extends LinearOpMode {
         outputTimer = new ElapsedTime();
         angle_timer = new ElapsedTime();
         dropTimer = new ElapsedTime();
+        gripTimer = new ElapsedTime();
 
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180));
         drive.setPoseEstimate(startPose);
 
         // Retrieve the IMU from the hardware map
-//        IMU imu = hardwareMap.get(BHI260IMU.class, "imu");
-//        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-//                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-//                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
-//        imu.initialize(parameters);
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-        imu = hardwareMap.get(BNO055IMU.class, "imu1");
+        IMU imu = hardwareMap.get(BHI260IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        initYaw = angles.firstAngle;
-
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
@@ -174,7 +178,7 @@ public class MatrixFinalCOPY extends LinearOpMode {
 
         while (opModeInInit()){
             ArmV2.SetArmPosition(armServoOnePos,wristServoPos);
-            Intake.crankServo.setPosition(intakeConstants.crankRetractPos);
+            Intake.crankServo.setPosition(0.69);
             Intake.intakeArmServo.setPosition(0.5);
             Intake.intakeWristServo.setPosition(0.66);
             ArmV2.DropPixel(0.95);
@@ -183,9 +187,12 @@ public class MatrixFinalCOPY extends LinearOpMode {
             Hanger.hangerServoTwo.setPosition(0.25);
             Intake.gripperServo.setPosition(1);
             ArmV2.SliderLink(0.95);
+
             inputTimer.reset();
             outputTimer.reset();
             dropTimer.reset();
+            gripTimer.reset();
+
             intakeCounter = 0;
             sliderCounter = 0;
             outtakeCounter = 0;
@@ -207,100 +214,66 @@ public class MatrixFinalCOPY extends LinearOpMode {
             double armOnePosition = armOneAnalogInput.getVoltage() / 3.3 * 360;
             double armTwoPosition = armTwoAnalogInput.getVoltage() / 3.3 * 360;
 
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            adjustedYaw = angles.firstAngle-initYaw;
-            // toggle field/normal
-            double zerodYaw = -initYaw+angles.firstAngle;
-
+            //--------------------------------------------------------------------------------------
+            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
-            double y = -gamepad1.left_stick_y;
-            double turn = gamepad1.right_stick_x;
+            double rx = gamepad1.right_stick_x;
 
-            double theta = Math.atan2(y, x) * 180/Math.PI; // aka angle
-            double realTheta;
-            realTheta = (360 - zerodYaw) + theta;
-            double power = Math.hypot(x, y);
-            double sin = Math.sin((realTheta * (Math.PI / 180)) - (Math.PI / 4));
-            double cos = Math.cos((realTheta * (Math.PI / 180)) - (Math.PI / 4));
-            double maxSinCos = Math.max(Math.abs(sin), Math.abs(cos));
-
-            double leftFrontPow = (power * cos / maxSinCos + turn);
-            double rightFrontPow = (power * sin / maxSinCos - turn);
-            double leftBackPow = (power * sin / maxSinCos + turn);
-            double rightBackPow = (power * cos / maxSinCos - turn);
-
-
-            if ((power + Math.abs(turn)) > 1) {
-                leftFrontPow /= power + turn;
-                rightFrontPow /= power - turn;
-                leftBackPow /= power + turn;
-                rightBackPow /= power - turn;
+            if (currentGamepad1.start && !previousGamepad1.start) {
+                imu.resetYaw();
             }
 
-            leftFront.setPower(leftFrontPow);
-            rightFront.setPower(rightFrontPow);
-            leftRear.setPower(leftBackPow);
-            rightRear.setPower(rightBackPow);
-            //--------------------------------------------------------------------------------------
-//            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-//            double x = gamepad1.left_stick_x;
-//            double rx = gamepad1.right_stick_x;
-//
-//            if (currentGamepad1.start && !previousGamepad1.start) {
-//                imu.resetYaw();
-//            }
-//
-//            // Main teleop loop goes here
-//
-//            //drivetrain ---------------------------------------------------------------------------
-//            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-//            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-//            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
-//
-//            rotX = rotX * 1.1;
-//
-//            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-//            double frontLeftPower = (rotY + rotX + rx) / denominator;
-//            double backLeftPower = (rotY - rotX + rx) / denominator;
-//            double frontRightPower = (rotY - rotX - rx) / denominator;
-//            double backRightPower = (rotY + rotX - rx) / denominator;
-//
-//            leftFront.setPower(fastSpeed * frontLeftPower);
-//            leftRear.setPower(fastSpeed * backLeftPower);
-//            rightFront.setPower(fastSpeed * frontRightPower);
-//            rightRear.setPower(fastSpeed * backRightPower);
-//
-//            if (currentGamepad1.left_trigger > 0.75){
-//                leftFront.setPower(slowSpeed * frontLeftPower);
-//                leftRear.setPower(slowSpeed * backLeftPower);
-//                rightFront.setPower(slowSpeed * frontRightPower);
-//                rightRear.setPower(slowSpeed * backRightPower);
-//            }
-//
-//            drive.update();
-//
-//            // Retrieve your pose
-//            Pose2d myPose = drive.getPoseEstimate();
-//
-//            double turnStack = angleWrap(Math.toRadians(90) - botHeading);
-//            double turnBackDrop = angleWrap(Math.toRadians(270) - botHeading);
-//
-//            double turnBotFront = angleWrap(Math.toRadians(0) - botHeading);
-//            double turnBotBack = angleWrap(Math.toRadians(180) - botHeading);
-//
-//            //TODO: SPEED THIS UP, PID TUNING
-//            if (currentGamepad1.dpad_left && !previousGamepad1.dpad_left ) {
-//                drive.turn(turnStack);
-//            }
-//            if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
-//                drive.turn(turnBackDrop);
-//            }
-//            if (currentGamepad1.dpad_down && currentGamepad1.dpad_down ) {
-//                drive.turn(turnBotBack);
-//            }
-//            if (currentGamepad1.dpad_up && currentGamepad1.dpad_up){
-//                drive.turn(turnBotFront);
-//            }
+            // Main teleop loop goes here
+
+            //drivetrain ---------------------------------------------------------------------------
+            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
+            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+
+            rotX = rotX * 1.1;
+
+            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+            double frontLeftPower = (rotY + rotX + rx) / denominator;
+            double backLeftPower = (rotY - rotX + rx) / denominator;
+            double frontRightPower = (rotY - rotX - rx) / denominator;
+            double backRightPower = (rotY + rotX - rx) / denominator;
+
+            leftFront.setPower(fastSpeed * frontLeftPower);
+            leftRear.setPower(fastSpeed * backLeftPower);
+            rightFront.setPower(fastSpeed * frontRightPower);
+            rightRear.setPower(fastSpeed * backRightPower);
+
+            if (currentGamepad1.left_trigger > 0.75){
+                leftFront.setPower(slowSpeed * frontLeftPower);
+                leftRear.setPower(slowSpeed * backLeftPower);
+                rightFront.setPower(slowSpeed * frontRightPower);
+                rightRear.setPower(slowSpeed * backRightPower);
+            }
+
+            drive.update();
+
+            // Retrieve your pose
+            Pose2d myPose = drive.getPoseEstimate();
+
+            double turnStack = angleWrap(Math.toRadians(90) - botHeading);
+            double turnBackDrop = angleWrap(Math.toRadians(270) - botHeading);
+
+            double turnBotFront = angleWrap(Math.toRadians(0) - botHeading);
+            double turnBotBack = angleWrap(Math.toRadians(180) - botHeading);
+
+            //TODO: SPEED THIS UP, PID TUNING
+            if (currentGamepad1.dpad_left && !previousGamepad1.dpad_left ) {
+                drive.turn(turnStack);
+            }
+            if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
+                drive.turn(turnBackDrop);
+            }
+            if (currentGamepad1.dpad_down && currentGamepad1.dpad_down ) {
+                drive.turn(turnBotBack);
+            }
+            if (currentGamepad1.dpad_up && currentGamepad1.dpad_up){
+                drive.turn(turnBotFront);
+            }
             //--------------------------------------------------------------------------------------
 //            Pose2d poseEstimate = drive.getPoseEstimate();
 //            Vector2d input = new Vector2d(Math.pow(Range.clip(gamepad1.left_stick_y, -1, 1), 3),
@@ -680,6 +653,83 @@ public class MatrixFinalCOPY extends LinearOpMode {
                     outputState = OuttakeState.OUTTAKE_START;
             }
 
+            if(onlyGripToggle){
+                switch (gripState){
+                    case INTAKE_START:
+                        if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper){
+                            if (intake_stack_command == "GroundIntake"){
+                                Intake.intakeArmServo.setPosition(0.4);
+                                Intake.intakeWristServo.setPosition(0.495);
+                                Intake.IntakePixel(1);
+                                gripTimer.reset();
+                                gripState = OnlyGrip.INTAKE_GRIP;
+                            }
+                            if(intake_stack_command == "FiveStackGo")
+                            {
+                                Intake.intakeArmServo.setPosition(0.650);
+                                Intake.intakeWristServo.setPosition(0.23); //0.24
+                                Intake.IntakePixel(1);
+                                gripTimer.reset();
+                                gripState = OnlyGrip.INTAKE_GRIP;
+                            }
+                            if (intake_stack_command == "ThreeStackGo")
+                            {
+                                Intake.intakeArmServo.setPosition(0.520);
+                                Intake.intakeWristServo.setPosition(0.365); //0.375
+                                Intake.IntakePixel(1);
+                                gripTimer.reset();
+                                gripState = OnlyGrip.INTAKE_GRIP;
+                            }
+                        }
+                        break;
+                    case INTAKE_GRIP:
+                        if (intake_stack_command == "GroundIntake") {
+                            Intake.intakeArmServo.setPosition(0.4);
+                            Intake.intakeWristServo.setPosition(0.48);
+                        }
+                        if (intake_stack_command == "ThreeStackGo") {
+                            Intake.intakeArmServo.setPosition(0.53);
+                            Intake.intakeWristServo.setPosition(0.365);//0.375
+                        }
+                        if (intake_stack_command == "FiveStackGo") {
+                            Intake.intakeArmServo.setPosition(0.650);
+                            Intake.intakeWristServo.setPosition(0.23);//0.24
+                        }
+                        if (!intakeToggle) {
+                            if (!beamBreaker.getState()) {
+                                Intake.IntakePixel(0.8);
+                                if (gripTimer.milliseconds() >= 500) { ///800
+                                    gripTimer.reset();
+                                    gripState = OnlyGrip.INTAKE_FINAL;
+                                }
+                            }
+                        }
+                        if (intakeToggle) {
+                            if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
+                                Intake.IntakePixel(0.8);
+                                if (gripTimer.milliseconds() >= 500) { // 800
+                                    gripTimer.reset();
+                                    gripState = OnlyGrip.INTAKE_FINAL;
+                                }
+                            }
+                        }
+                        if (resetIntakeFlag){
+                            Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);
+                            intakeCounter = 0;
+                            resetIntakeFlag = false;
+                            intake_stack_command = "GroundIntake";
+                            gripState = OnlyGrip.INTAKE_FINAL;
+                        }
+                        break;
+                    case INTAKE_FINAL:
+                        Intake.IntakePixel(0.8);
+                        Intake.SetArmPosition(0.5, 0.66);
+                        intake_stack_command = "GroundIntake";
+                        gripState = OnlyGrip.INTAKE_START;
+                        break;
+                }
+            }
+
             if (outtakeCounter != 0 && (gamepad2.left_stick_x != 0 || gamepad2.left_stick_y != 0)){
                 double armSliderValue = Range.clip(-gamepad2.left_stick_y,0,1);
                 double mappedCrank = Range.scale(armSliderValue, 0, 1, 0.95, 0.2);
@@ -751,6 +801,47 @@ public class MatrixFinalCOPY extends LinearOpMode {
                 drive.followTrajectorySequenceAsync(ResetRobot);
                 drive.update();
             }
+
+//            switch (dropState){
+//                case DROP_START:
+//                    if(currentGamepad1.a && !previousGamepad1.a){
+//                        dropState = DropPixel.DROP_ONE_PIXEL;
+//                    }
+//                    break;
+//                case DROP_ONE_PIXEL:
+//                    ArmV2.DropPixel(0.84);
+//                    if (dropTimer.milliseconds() >= 200){
+//                        arm.setArmPos(0.5, wristServoPos);
+//                        if (currentGamepad1.a && !previousGamepad1.a && ArmV2.deliveryServo.getPosition() == 0.84){
+//                            dropState = DropPixel.DROP_TWO_PIXEL;
+//                        }
+//                    }
+//                    break;
+//                case DROP_TWO_PIXEL:
+//                    ArmV2.DropPixel(1);
+//                    dropTimer.reset();
+//                    dropState = DropPixel.RESET_ARM;
+//                    break;
+//                case RESET_ARM:
+//                    arm.setArmPos(0.57, 0.66);
+//                    ArmV2.SliderLink(0.95);
+//                    if(dropTimer.milliseconds() >= 200){
+//                        arm.setArmPos(0.7, wristServoPos);
+//                        if (dropTimer.milliseconds()>= 400){
+//                            arm.setArmPos(armServoOnePos, wristServoPos);
+//                            output_power = lifter_pid(kp, ki, kd, levelZero);
+//                            if (output_power > 0.9) {
+//                                output_power = 1;
+//                            } else if (output_power < 0.2) {
+//                                output_power = 0;
+//                            }
+//                            slider.extendTo(levelZero, output_power);
+//                            sliderCounter = 0;
+//                            outtakeCounter = 0;
+//                        }
+//                    }
+//                    break;
+//            }
 
             if(currentGamepad1.b && !previousGamepad1.b){
                 //drop 1st pixel
@@ -827,7 +918,13 @@ public class MatrixFinalCOPY extends LinearOpMode {
                 }
             }
             if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
-
+                output_power = lifter_pid(kp, ki, kd, levelZero);
+                if (output_power > 0.9) {
+                    output_power = 1;
+                } else if (output_power < 0.2) {
+                    output_power = 0;
+                }
+                slider.extendTo(levelZero, output_power);
             }
             if(currentGamepad2.a && !previousGamepad2.a){
                 TrajectorySequence replunge = drive.trajectorySequenceBuilder(startPose)
