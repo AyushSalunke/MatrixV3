@@ -767,7 +767,13 @@ public class MatrixFinalV2 extends LinearOpMode {
                 }
             }
             if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
-
+                output_power = lifter_pid(kp, ki, kd, levelZero);
+                if (output_power > 0.9) {
+                    output_power = 1;
+                } else if (output_power < 0.2) {
+                    output_power = 0;
+                }
+                slider.extendTo(levelZero, output_power);
             }
             if(currentGamepad2.a && !previousGamepad2.a){
                 TrajectorySequence replunge = drive.trajectorySequenceBuilder(startPose)

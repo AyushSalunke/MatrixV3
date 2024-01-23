@@ -47,7 +47,7 @@ public class RedSafeFarAuto extends LinearOpMode {
 
 
     public static double stackDiff = 0.0;
-    public static double yellowDiff = 3.0;
+    public static double yellowDiff = 0;
     public static Pose2d PurpleRightPos = new Pose2d(-38,-32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51 , -12 + stackDiff, -Math.PI); //53
     public static Vector2d PurpleRight, YellowRight = new Vector2d(49.5 - yellowDiff,-42.5), StackRight = new Vector2d(-51, -12.5 + stackDiff);
 

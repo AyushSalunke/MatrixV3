@@ -49,7 +49,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
     public static double armServoOnePos = 0.92, armServoOneUP = 0.7, armServoOneOut = 0.49;
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double yellowDiff = 3.5;
+    public static double yellowDiff = 0.5;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;
@@ -146,7 +146,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
                 //backdrop
-                .lineToConstantHeading(new Vector2d(30 , 28))
+                .lineToConstantHeading(new Vector2d(33 , 28))
 
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.2)

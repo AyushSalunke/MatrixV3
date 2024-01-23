@@ -44,7 +44,7 @@ public class RedSafeNearAuto extends LinearOpMode {
 
     public static double kp = 4, ki, kd = 1.7;
     public static double armServoOnePos = 0.92, armServoOneUP = 0.7, armServoOneOut = 0.47;
-    public static double yellowDiff = 3.5;
+    public static double yellowDiff = 0.5;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;

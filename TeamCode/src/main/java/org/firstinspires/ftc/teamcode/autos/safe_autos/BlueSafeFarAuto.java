@@ -47,17 +47,17 @@ public class BlueSafeFarAuto extends LinearOpMode {
     public static double kp = 4, ki, kd = 1.7;
 
     public static double stackDiff = 1.5;
-    public static double yellowDiff = 2.5;
+    public static double yellowDiff = 0;
     public static Pose2d PurpleRightPos = new Pose2d(-35,32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51.5 , 12 + stackDiff, -Math.PI); //-51
-    public static Vector2d PurpleRight, YellowRight = new Vector2d(49.5 - yellowDiff,30.5), StackRight = new Vector2d(-51, 12.5); //53.5
+    public static Vector2d PurpleRight, YellowRight = new Vector2d(50.5 - yellowDiff,30.5), StackRight = new Vector2d(-51, 12.5); //53.5
 
 
     public static Pose2d PurpleLeftPos = new Pose2d(-40,30, 0), YellowLeftPos, StackLeftPos = new Pose2d(-51 , 13 + stackDiff, -Math.PI); //-44
-    public static Vector2d PurpleLeft, YellowLeft = new Vector2d(49.5 - yellowDiff,43.5), StackLeft = new Vector2d(-51, 12); //48
+    public static Vector2d PurpleLeft, YellowLeft = new Vector2d(50.5 - yellowDiff,43.5), StackLeft = new Vector2d(-51, 12); //48
 
 
     public static Pose2d PurpleCenterPos = new Pose2d(-49,24, 0), YellowCenterPos, StackCenterPos = new Pose2d(-51 , 12, -Math.PI); //51
-    public static Vector2d PurpleCenter, YellowCenter = new Vector2d(49.5 - yellowDiff,36), StackCenter = new Vector2d(-51, 12); //38
+    public static Vector2d PurpleCenter, YellowCenter = new Vector2d(50.5 - yellowDiff,36), StackCenter = new Vector2d(-51, 12); //38
 
 
     public static double wristPlay1 = -0.01, wristPlay2 = 0.00;
