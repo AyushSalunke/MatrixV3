@@ -44,7 +44,7 @@ public class RedNearAuto extends LinearOpMode {
 
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double stackDiff = 0.5;
+    public static double stackDiff = 2.0;
 
     public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-52 - stackDiff, -12.5, -Math.PI); //-51,-12
     public static Vector2d PurpleLeft = new Vector2d(16 , -29), YellowLeft = new Vector2d(50,-26), StackLeft; //25

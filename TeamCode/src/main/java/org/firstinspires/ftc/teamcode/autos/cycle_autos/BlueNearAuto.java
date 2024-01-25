@@ -42,11 +42,11 @@ public class BlueNearAuto extends LinearOpMode {
 
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double stackDiff = 0.5;
+    public static double stackDiff = 2.0;
 
     public static double yellowDiff = 3.0;
 
-    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-51 + stackDiff, 11, -Math.PI); //-51,-12
+    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-52 - stackDiff, 11, -Math.PI); //-51,-12
     public static Vector2d PurpleLeft = new Vector2d(16 , 29), YellowLeft = new Vector2d(50,43), StackLeft; //25
 
     public static Pose2d PurpleCenterPos, YellowCenterPos, StackCenterPos;
@@ -113,7 +113,7 @@ public class BlueNearAuto extends LinearOpMode {
         intake = new Intake(hardwareMap, telemetry);
 
         Globals.IS_AUTO = true;
-        Globals.ALLIANCE = Location.RED;
+        Globals.ALLIANCE = Location.BLUE;
         Globals.SIDE = Location.CLOSE;
 
         Pose2d startPose=new Pose2d(14, 62, -Math.PI);
