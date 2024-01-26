@@ -48,7 +48,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
 
     public static double stackDiff = 1.5;
     public static double yellowDiff = 0;
-    public static Pose2d PurpleRightPos = new Pose2d(-35,32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51.5 , 12 + stackDiff, -Math.PI); //-51
+    public static Pose2d PurpleRightPos = new Pose2d(-35,32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-53 , 12 + stackDiff, -Math.PI); //-51
     public static Vector2d PurpleRight, YellowRight = new Vector2d(50.5 - yellowDiff,30.5), StackRight = new Vector2d(-51, 12.5); //53.5
 
 
@@ -129,7 +129,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
@@ -224,7 +224,7 @@ public class BlueSafeFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)

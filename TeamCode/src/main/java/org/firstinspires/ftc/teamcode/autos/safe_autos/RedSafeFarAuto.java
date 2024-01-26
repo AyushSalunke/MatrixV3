@@ -48,8 +48,8 @@ public class RedSafeFarAuto extends LinearOpMode {
 
     public static double stackDiff = 0.0;
     public static double yellowDiff = 0;
-    public static Pose2d PurpleRightPos = new Pose2d(-38,-32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-51 , -12 + stackDiff, -Math.PI); //53
-    public static Vector2d PurpleRight, YellowRight = new Vector2d(49.5 - yellowDiff,-42.5), StackRight = new Vector2d(-51, -12.5 + stackDiff);
+    public static Pose2d PurpleRightPos = new Pose2d(-38,-32, -Math.PI), YellowRightPos, StackRightPos = new Pose2d(-53 , -12 + stackDiff, -Math.PI); //53
+    public static Vector2d PurpleRight, YellowRight = new Vector2d(49.5 - yellowDiff,-42.5), StackRight = new Vector2d(-53, -12.5 + stackDiff);
 
     public static Pose2d PurpleLeftPos = new Pose2d(-41,-30, 0), YellowLeftPos, StackLeftPos = new Pose2d(-51 , -11 + stackDiff, -Math.PI);//40
     public static Vector2d PurpleLeft = new Vector2d(-41, -30), YellowLeft = new Vector2d(49.5 - yellowDiff,-29.5), StackLeft = new Vector2d(-51, -12); //48
@@ -130,7 +130,7 @@ public class RedSafeFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
@@ -229,7 +229,7 @@ public class RedSafeFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.67);Intake.intakeWristServo.setPosition(0.24 + wristPlay1);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
-                .addTemporalMarker(()->{Intake.CrankPosition(0.41);})
+                .addTemporalMarker(()->{Intake.CrankPosition(0.4);})
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), 12.4), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToSplineHeading(StackRightPos)
