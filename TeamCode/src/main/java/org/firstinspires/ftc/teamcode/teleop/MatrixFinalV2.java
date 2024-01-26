@@ -465,7 +465,7 @@ public class MatrixFinalV2 extends LinearOpMode {
                     break;
                 case INTAKE_FINAL:
                     ArmV2.wristServo.setPosition(wristServoPos);
-                    if (Intake.intakeArmServo.getPosition() == 1 && inputTimer.milliseconds() >= 350 && wristPosition >= 280) {  //350 //inputTimer.milliseconds() >= 300
+                    if (Intake.intakeArmServo.getPosition() == 1 && inputTimer.milliseconds() >= 350) {  //350 //inputTimer.milliseconds() >= 300 && wristPosition >= 280
                         ArmV2.SetArmPosition(armServoOnePos, wristServoPos);
                         if (ArmV2.armServoOne.getPosition() == armServoOnePos && inputTimer.milliseconds() >= 500) { //350 //400
                             ArmV2.DropPixel(0.5);

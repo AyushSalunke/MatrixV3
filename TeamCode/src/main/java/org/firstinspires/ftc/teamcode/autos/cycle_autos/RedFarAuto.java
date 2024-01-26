@@ -141,7 +141,7 @@ public class RedFarAuto extends LinearOpMode {
 
                 .addTemporalMarker(()->{Intake.IntakePixel(0.8);})
                 .waitSeconds(0.3)
-                .addTemporalMarker(()->{intake.setArm(0000000.69, 0.4);})
+                .addTemporalMarker(()->{intake.setArm(0.69, 0.4);})
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .setReversed(true)
                 .resetConstraints()
@@ -429,8 +429,7 @@ public class RedFarAuto extends LinearOpMode {
                 .waitSeconds(0.3)//0.1
                 .forward(1.5)
                 .waitSeconds(0.3)//0.1
-                .addTemporalMarker(()->{arm.setArmPos(0.52
-                        , 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(0.52, 0.68);})
                 .addTemporalMarker(()->{ArmV2.DropPixel(1);})
                 .waitSeconds(0.3) //start
                 .UNSTABLE_addTemporalMarkerOffset(0.0,()->{Intake.intakeWristServo.setPosition(0.38);})

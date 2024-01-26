@@ -93,7 +93,7 @@ public class RedSafeFarAuto extends LinearOpMode {
     private VisionPortal portal;
     private Location randomization;
 
-    private DistanceSensor sensorDistance2, sensorDistance3;
+//    private DistanceSensor sensorDistance2, sensorDistance3;
     @Override
     public void runOpMode() throws InterruptedException {
         drive = new SampleMecanumDrive(hardwareMap);
@@ -109,8 +109,8 @@ public class RedSafeFarAuto extends LinearOpMode {
         Pose2d startPose=new Pose2d(-39, -64, 0); //-39
         drive.setPoseEstimate(startPose);
 ;
-        sensorDistance2 = hardwareMap.get(DistanceSensor.class, "sensor_distance2");
-        sensorDistance3 = hardwareMap.get(DistanceSensor.class, "sensor_distance3");
+//        sensorDistance2 = hardwareMap.get(DistanceSensor.class, "sensor_distance2");
+//        sensorDistance3 = hardwareMap.get(DistanceSensor.class, "sensor_distance3");
 
 
 
@@ -423,14 +423,14 @@ public class RedSafeFarAuto extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            double reqDist = 2;
-            double backDropDistance = (sensorDistance2.getDistance(DistanceUnit.INCH) + sensorDistance3.getDistance(DistanceUnit.INCH))/2;
-            double error = backDropDistance - reqDist;
-            double factor = 1.2; //1.17
-
-            double x = drive.getPoseEstimate().getX() + (error * factor);
-            double y = drive.getPoseEstimate().getY();
-            double heading = drive.getPoseEstimate().getHeading();
+//            double reqDist = 2;
+//            double backDropDistance = (sensorDistance2.getDistance(DistanceUnit.INCH) + sensorDistance3.getDistance(DistanceUnit.INCH))/2;
+//            double error = backDropDistance - reqDist;
+//            double factor = 1.2; //1.17
+//
+//            double x = drive.getPoseEstimate().getX() + (error * factor);
+//            double y = drive.getPoseEstimate().getY();
+//            double heading = drive.getPoseEstimate().getHeading();
 
             //RIGHT TRAJECTORY
             switch (currentState){
