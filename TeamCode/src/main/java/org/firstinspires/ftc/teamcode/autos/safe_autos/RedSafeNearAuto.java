@@ -44,7 +44,7 @@ public class RedSafeNearAuto extends LinearOpMode {
 
     public static double kp = 4, ki, kd = 1.7;
     public static double armServoOnePos = 0.92, armServoOneUP = 0.7, armServoOneOut = 0.47;
-    public static double yellowDiff = 2.0;
+    public static double yellowDiff = 5.0;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;
@@ -68,21 +68,21 @@ public class RedSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
                 //backdrop
-                .lineToConstantHeading(new Vector2d(30 , -30))
+                .lineToConstantHeading(new Vector2d(30.5 , -30))
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.5);Intake.intakeWristServo.setPosition(0.66);})
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .addTemporalMarker(this::telem)
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
 //                .splineToConstantHeading(new Vector2d(51 - yellowDiff,-41), 0)
                 .lineToConstantHeading(new Vector2d(51 - yellowDiff,-41))
                 .waitSeconds(0.3)
-                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.64);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.62);})
                 .waitSeconds(1)
                 .addTemporalMarker(()->{ArmV2.DropPixel(1);})
-                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.67);})
+//                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.62);})
                 .waitSeconds(1)//0.55
                 .addTemporalMarker(this::telem)
                 .resetConstraints()
@@ -116,11 +116,11 @@ public class RedSafeNearAuto extends LinearOpMode {
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
                 .addTemporalMarker(this::telem)
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
 //                .splineToConstantHeading(new Vector2d(50.5 - yellowDiff,-33.5), 0)
                 .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-35)) //33.5
                 .waitSeconds(0.3)
-                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.62);})
                 .waitSeconds(1)
                 .addTemporalMarker(()->{ArmV2.DropPixel(1);})
                 .waitSeconds(1)
@@ -151,11 +151,11 @@ public class RedSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.IntakePixel(1);})
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
 //                .splineToConstantHeading(new Vector2d(50.5 - yellowDiff,-27.5), 0)
                 .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,-28)) //-29
                 .waitSeconds(0.3)
-                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.68);})
+                .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.62);})
                 .waitSeconds(0.4)
                 .addTemporalMarker(()->{ArmV2.DropPixel(1);})
                 .waitSeconds(0.4)

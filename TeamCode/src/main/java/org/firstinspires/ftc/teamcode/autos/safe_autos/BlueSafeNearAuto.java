@@ -49,7 +49,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
     public static double armServoOnePos = 0.92, armServoOneUP = 0.7, armServoOneOut = 0.49;
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double yellowDiff = 2.0;
+    public static double yellowDiff = 5.0;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;
@@ -83,7 +83,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
 
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
                 .lineToConstantHeading(new Vector2d(50.5 - yellowDiff,27))
 
                 .waitSeconds(0.4)
@@ -109,7 +109,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .addTemporalMarker(()->{Intake.intakeArmServo.setPosition(0.4);Intake.intakeWristServo.setPosition(0.5);})
 
                 //backdrop
-                .lineToConstantHeading(new Vector2d(25 , 22))
+                .lineToConstantHeading(new Vector2d(25 , 24))
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneUP, 0.16);})
                 .waitSeconds(0.5)
@@ -119,7 +119,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .waitSeconds(0.5)
                 .addTemporalMarker(()->{Intake.CrankPosition(0.69);})
 
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
                 .splineToConstantHeading(new Vector2d(51 - yellowDiff,35.5), 0)
 
                 .waitSeconds(0.3)
@@ -159,7 +159,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
                 .waitSeconds(0.5)
                 .addTemporalMarker(this::telem)
 
-                .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(30, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(30))
 //                .splineToConstantHeading(new Vector2d(51 - yellowDiff,43), 0)
                 .lineToConstantHeading(new Vector2d(51 - yellowDiff,43))
 

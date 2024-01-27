@@ -42,18 +42,18 @@ public class BlueNearAuto extends LinearOpMode {
 
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double stackDiff = 2.0;
+    public static double stackDiff = 1.0;
 
-    public static double yellowDiff = 3.0;
+    public static double yellowDiff = 4.0;
 
-    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-52 - stackDiff, 11, -Math.PI); //-51,-12
+    public static Pose2d PurpleLeftPos, YellowLeftPos, StackLeftPos = new Pose2d(-54, 12.5 - stackDiff, -Math.PI); //-51,-12
     public static Vector2d PurpleLeft = new Vector2d(16 , 29), YellowLeft = new Vector2d(50,43), StackLeft; //25
 
     public static Pose2d PurpleCenterPos, YellowCenterPos, StackCenterPos;
     public static Vector2d PurpleCenter = new Vector2d(25 , 21), YellowCenter = new Vector2d(50,35), StackCenter;
 
     public static Pose2d PurpleRightPos, YellowRightPos, StackRightPos;
-    public static Vector2d PurpleRight = new Vector2d(16 , 29), YellowRight = new Vector2d(50 ,28), StackRight;
+    public static Vector2d PurpleRight = new Vector2d(16 , 29), YellowRight = new Vector2d(50 - yellowDiff ,28), StackRight;
 
     public static double wristPlay1 = 0.00, wristPlay2 = 0.00;
 
@@ -135,7 +135,7 @@ public class BlueNearAuto extends LinearOpMode {
 
                 .setConstraints(SampleMecanumDrive.getVelocityConstraint(35, Math.toRadians(136.52544), DriveConstants.TRACK_WIDTH), SampleMecanumDrive.getAccelerationConstraint(35))
 //                .splineToConstantHeading(new Vector2d(51 - yellowDiff,-41), 0)
-                .lineToConstantHeading(new Vector2d(51 - yellowDiff,41))
+                .lineToConstantHeading(new Vector2d(50 - yellowDiff,41))
 
                 .waitSeconds(0.3)
                 .addTemporalMarker(()->{arm.setArmPos(armServoOneOut, 0.64);})
@@ -517,7 +517,7 @@ public class BlueNearAuto extends LinearOpMode {
 
         propPipeline = new PropPipeline();
         portal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 2"))
                 .setCameraResolution(new Size(1280, 720))
                 .addProcessor(propPipeline)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
