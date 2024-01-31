@@ -29,7 +29,7 @@ import java.util.List;
 
 @Autonomous(name="BLUEFarAuto_1Cycle_onlyPark", group = "2Cycle_Autos")
 @Config
-//@Disabled
+@Disabled
 public class BlueFarAuto_onlyPark extends LinearOpMode {
     SampleMecanumDrive drive = null;
     Slider slider = null;

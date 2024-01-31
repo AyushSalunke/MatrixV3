@@ -49,7 +49,7 @@ public class BlueSafeNearAuto extends LinearOpMode {
     public static double armServoOnePos = 0.92, armServoOneUP = 0.7, armServoOneOut = 0.49;
     public static double kp = 4, ki, kd = 1.7;
 
-    public static double yellowDiff = 5.0;
+    public static double yellowDiff = 1.5;
     private PropPipeline propPipeline;
     private VisionPortal portal;
     private Location randomization;
